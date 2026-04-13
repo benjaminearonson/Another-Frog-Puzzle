@@ -1,0 +1,124 @@
+from manim import *
+import random
+
+config.pixel_height = 1920
+config.pixel_width = 1080
+config.frame_height = 16.0
+config.frame_width = 9.0
+
+class FrogJumps(MovingCameraScene):
+    def construct(self):
+        self.camera.background_color = "#121414"
+        self.camera.frame.move_to([0.5,0.5,0])
+        frog1 = Dot(ORIGIN, fill_color="#03c900")
+        frog2 = Dot([0,1,0], fill_color="#03c900")
+        frog3 = Dot([1,0,0], fill_color="#03c900")
+        self.add(frog1, frog2, frog3)
+
+        # label1 = always_redraw(lambda: Tex(1).next_to(frog1, LEFT,buff=0.1))
+        # self.add(label1)
+        # label2 = always_redraw(lambda: Tex(2).next_to(frog2, LEFT,buff=0.1))
+        # self.add(label2)
+        # label3 = always_redraw(lambda: Tex(3).next_to(frog3, LEFT,buff=0.1))
+        # self.add(label3)
+
+        corner = Dot([1,1,0], stroke_color="#03c900", fill_opacity=0, stroke_width=3, radius=0.1)
+        self.add(corner)
+
+        def jump(a, b, rt=1):
+            start_loc = a.get_center()
+            b_loc = b.get_center()
+            dest = b_loc * 2 - start_loc
+            self.add(Dot(start_loc, fill_color="#0030dd",z_index=-1))
+            self.play(a.animate.move_to(dest), run_time=rt)
+
+        self.wait()
+        jump(frog1, frog3)
+        self.wait(0.5)
+        jump(frog2, frog3, 0.9)
+        self.wait(0.4)
+        jump(frog3, frog1, 0.8)
+        self.wait(0.3)
+        jump(frog2, frog1, 0.6)
+        self.wait(0.2)
+        jump(frog3, frog2, 0.5)
+        self.wait(0.1)
+        jump(frog1, frog3, 0.4)
+        jump(frog2, frog3, 0.3)
+        jump(frog1, frog2, 0.3)
+        jump(frog3, frog1, 0.25)
+        jump(frog2, frog3, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog3, frog2, 0.2)
+        jump(frog1, frog2, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog2, frog1, 0.2)
+        jump(frog1, frog2, 0.2)
+        jump(frog3, frog2, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog2, frog3, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog2, frog1, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog2, frog3, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog2, frog3, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog1, frog2, 0.2)
+        jump(frog3, frog1, 0.2)
+        jump(frog2, frog1, 0.2)
+        jump(frog2, frog3, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog1, frog2, 0.2)
+        jump(frog1, frog3, 0.2)
+        jump(frog2, frog3, 0.2)
+        jump(frog2, frog1, 0.2)
+        jump(frog3, frog2, 0.2)
+        jump(frog1, frog2, 0.3)
+        jump(frog3, frog1, 0.35)
+        jump(frog1, frog3, 0.4)
+        jump(frog3, frog1, 0.4)
+        jump(frog1, frog3, 0.5)
+        jump(frog3, frog1, )
+        self.wait()
+
+        lattice = VGroup()
+
+        # Get screen boundaries to draw lines edge-to-edge
+        max_x = config.frame_width / 2
+        max_y = config.frame_height / 2
+
+        # Draw vertical lines at x = 0 +- 2k (Even integers: 0, 2, -2, 4, -4...)
+        # We loop far enough to cover standard 16:9 1080p frame width (~14.22)
+        for x in range(-10, 12, 2):
+            v_line = Line(
+                start=np.array([x, 30, 0]),
+                end=np.array([x, -30, 0]), z_index=-2
+            )
+            lattice.add(v_line)
+
+        # Draw horizontal lines at y = 1 +- 2k (Odd integers: 1, -1, 3, -3...)
+        # We loop far enough to cover standard 16:9 1080p frame height (~8.0)
+        for k in range(-5, 7):
+            y = 0 + 2 * k
+            h_line = Line(
+                start=np.array([-30, y, 0]),
+                end=np.array([30, y, 0]), z_index=-2, 
+            )
+            lattice.add(h_line)
+
+        # Optional: Style the lattice
+        lattice.set_color(WHITE).set_stroke(width=0.7, opacity=0.7)
+        lattice.set_z_index(-2)
+
+        # Animate the creation of the grid
+        self.add(lattice)
+        
+        
+  
+
+        self.wait() 
+
+
