@@ -1,0 +1,140 @@
+from manim import *
+import random
+
+config.pixel_height = 3840
+config.pixel_width = 2160
+config.frame_height = 16.0
+config.frame_width = 9.0
+
+class FrogJumps(MovingCameraScene):
+    def construct(self):
+        self.camera.background_color = "#121414"
+        self.camera.frame.scale(0.5)
+        self.camera.frame.move_to([0.5,0.5,0])
+        lattice = VGroup()
+
+        # A range of -10 to 10 easily covers the default 16:9 camera frame
+        for i in range(-10, 11):
+            # Vertical lines at x = i
+            v_line = Line(
+                start=np.array([i, 10, 0]), 
+                end=np.array([i, -10, 0])
+            )
+            # Horizontal lines at y = i
+            h_line = Line(
+                start=np.array([-10, i, 0]), 
+                end=np.array([10, i, 0])
+            )
+            
+            lattice.add(v_line, h_line)
+
+        # Make the lines thin and slightly transparent
+        lattice.set_color(WHITE).set_stroke(width=1, opacity=0.5)
+        y_axis = Line(start=[0,-10,0],end=[0,10,0]).set_stroke(width=1.5).set_color(WHITE)
+        self.add(y_axis)
+        x_axis = Line(start=[-10,0,0],end=[10,0,0]).set_stroke(width=1.5).set_color(WHITE)
+        self.add(x_axis)
+
+        self.add(lattice)
+
+        frog1 = Dot(fill_color="#03c900")
+        frog2 = Dot([0,1,0], fill_color="#03c900", )
+        frog3 = Dot([1,0,0], fill_color="#03c900", )
+        self.add(frog1, frog2, frog3)
+
+        x=1
+        y=1
+        def get_jump_destination(jumper, jumpee):
+            return 2 * jumpee.get_center() - jumper.get_center()
+
+
+        def perform_jump(jumper, jumpee, rt=1):
+            destination = get_jump_destination(jumper, jumpee)
+            self.play(jumper.animate.move_to(destination), run_time=rt)
+
+
+        frog_1_coords = always_redraw(
+            lambda: MathTex(
+                fr"\left( {frog1.get_center()[0]:.0f}, {frog1.get_center()[1]:.0f} \right)",
+                color=WHITE
+            )
+            .scale(0.4)
+            .next_to(frog1, UP + RIGHT, buff=0.03) # UR (Up-Right) adjusts dynamically based on the string's total width
+        )
+        frog_2_coords = always_redraw(
+            lambda: MathTex(
+                fr"\left( {frog2.get_center()[0]:.0f}, {frog2.get_center()[1]:.0f} \right)",
+                color=WHITE
+            )
+            .scale(0.4)
+            .next_to(frog2, UP + RIGHT, buff=0.03) # UR (Up-Right) adjusts dynamically based on the string's total width
+        )
+        frog_3_coords = always_redraw(
+            lambda: MathTex(
+                fr"\left( {frog3.get_center()[0]:.0f}, {frog3.get_center()[1]:.0f} \right)",
+                color=WHITE
+            )
+            .scale(0.4)
+            .next_to(frog3, UP + RIGHT, buff=0.03) # UR (Up-Right) adjusts dynamically based on the string's total width
+        )
+        self.add(frog_1_coords, frog_2_coords, frog_3_coords)
+
+
+        self.wait()
+        perform_jump(frog1, frog2)
+        perform_jump(frog3, frog2)
+        perform_jump(frog3, frog1)
+
+        self.wait()
+
+        self.play(self.camera.frame.animate.move_to([1,2,0]),run_time=2)
+
+        self.play(FadeOut(x_axis),FadeOut(y_axis),FadeOut(frog_1_coords),FadeOut(frog1))
+
+        a = MathTex(r"a").scale(0.5).move_to([-0.15,1.15,0])
+        b = MathTex(r"b").scale(0.5).move_to([0.85,2.15,0])
+        circle=Circle(fill_opacity=0,color="#03c900",radius=0.09,stroke_width=2).move_to([0,1,0])
+        dotted_circle = DashedVMobject(circle, num_dashes=6, dashed_ratio=0.5)
+        self.play(Write(a),Write(b),Create(dotted_circle))
+        self.wait(0.5)
+        perform_jump(frog2,frog3,2)
+
+        self.wait(0.5)
+        c = MathTex(r"c").scale(0.5).move_to([1.85,3.15,0])
+        self.play(Write(c))
+        
+
+        
+        self.wait()
+
+        avg = MathTex(r"\text{avg}(a,c)").scale(0.5).move_to([1.5,1.8,0])
+        self.play(DrawBorderThenFill(avg),run_time=1.75)
+        equals = MathTex(r"=").scale(0.5).move_to([1,2,0])
+        self.wait()
+
+        self.play(FadeOut(lattice), FadeOut(a), FadeOut(c), FadeOut(dotted_circle), FadeOut(frog2), FadeOut(frog3), FadeOut(frog_2_coords), FadeOut(frog_3_coords), 
+                  b.animate.move_to([0.75,2,0]),
+                  avg.animate.move_to([1.6,2,0]),
+                  Write(equals),
+                  run_time=1.5
+                  )
+
+        self.wait()
+        average_expression = MathTex(r"\dfrac{a+c}{2}").scale(0.5).move_to(avg.get_center()-[0.14,0,0])
+        self.play(TransformMatchingShapes(avg, average_expression))
+        two_b = MathTex(r"2b").scale(0.5).move_to(b.get_center()-[0.06,0,0])
+        a_plus_c = MathTex(r"a+c").scale(0.5).move_to(average_expression.get_center())
+        self.wait(0.5)
+        self.play(TransformMatchingShapes(b, two_b),
+                  Transform(average_expression, a_plus_c)
+                  )
+        
+        final_eq = MathTex(r"c=2b-a").scale(0.5).move_to([1.2,1.5,0])
+        self.wait() 
+        self.play(Write(final_eq),run_time=1.5)
+        self.play(Create(SurroundingRectangle( final_eq, color="#0003ce", stroke_width=1)))
+
+
+
+
+        self.wait(2)
